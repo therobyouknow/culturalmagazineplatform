@@ -17,5 +17,5 @@ features[field_instance][] = node-multi_media_article-field_flickr_set
 features[field_instance][] = node-multi_media_article-field_podcast
 features[field_instance][] = node-multi_media_article-field_sections
 features[node][] = multi_media_article
-features[taxonomy][] = section_category
+features_exclude[taxonomy][section_category] = section_category
 project path = sites/all/modules/features/cmp
