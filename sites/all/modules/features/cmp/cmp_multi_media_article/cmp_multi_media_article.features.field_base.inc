@@ -1,13 +1,13 @@
 <?php
 /**
  * @file
- * multi_media_article.features.field_base.inc
+ * cmp_multi_media_article.features.field_base.inc
  */
 
 /**
  * Implements hook_field_default_field_bases().
  */
-function multi_media_article_field_default_field_bases() {
+function cmp_multi_media_article_field_default_field_bases() {
   $field_bases = array();
 
   // Exported field_base: 'body'

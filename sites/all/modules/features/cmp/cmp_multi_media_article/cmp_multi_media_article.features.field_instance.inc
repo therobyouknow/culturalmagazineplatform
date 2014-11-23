@@ -1,13 +1,13 @@
 <?php
 /**
  * @file
- * multi_media_article.features.field_instance.inc
+ * cmp_multi_media_article.features.field_instance.inc
  */
 
 /**
  * Implements hook_field_default_field_instances().
  */
-function multi_media_article_field_default_field_instances() {
+function cmp_multi_media_article_field_default_field_instances() {
   $field_instances = array();
 
   // Exported field_instance: 'node-multi_media_article-body'

@@ -1,8 +1,8 @@
-name = Main Menu
+name = CMP Main Menu
 core = 7.x
-package = Features
+package = CMP Features
 dependencies[] = features
 dependencies[] = menu
 features[features_api][] = api:2
 features[menu_custom][] = main-menu
-project path = sites/all/modules/features
+project path = sites/all/modules/features/cmp

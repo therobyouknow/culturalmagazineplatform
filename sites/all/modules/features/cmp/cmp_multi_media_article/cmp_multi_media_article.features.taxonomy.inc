@@ -1,13 +1,13 @@
 <?php
 /**
  * @file
- * multi_media_article.features.taxonomy.inc
+ * cmp_multi_media_article.features.taxonomy.inc
  */
 
 /**
  * Implements hook_taxonomy_default_vocabularies().
  */
-function multi_media_article_taxonomy_default_vocabularies() {
+function cmp_multi_media_article_taxonomy_default_vocabularies() {
   return array(
     'section_category' => array(
       'name' => 'section_category',

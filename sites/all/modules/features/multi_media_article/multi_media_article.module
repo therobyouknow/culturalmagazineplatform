@@ -1,7 +1,0 @@
-<?php
-/**
- * @file
- * Code for the Multi Media Article feature.
- */
-
-include_once 'multi_media_article.features.inc';

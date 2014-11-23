@@ -1,6 +1,6 @@
-name = Multi Media Article Content Type
+name = CMP Multi Media Article Content Type
 core = 7.x
-package = Features
+package = CMP Features
 dependencies[] = features
 dependencies[] = file
 dependencies[] = flickrfield
@@ -18,4 +18,4 @@ features[field_instance][] = node-multi_media_article-field_podcast
 features[field_instance][] = node-multi_media_article-field_sections
 features[node][] = multi_media_article
 features[taxonomy][] = section_category
-project path = sites/all/modules/features
+project path = sites/all/modules/features/cmp

@@ -1,13 +1,13 @@
 <?php
 /**
  * @file
- * multi_media_article.features.inc
+ * cmp_multi_media_article.features.inc
  */
 
 /**
  * Implements hook_node_info().
  */
-function multi_media_article_node_info() {
+function cmp_multi_media_article_node_info() {
   $items = array(
     'multi_media_article' => array(
       'name' => t('Multi Media Article'),

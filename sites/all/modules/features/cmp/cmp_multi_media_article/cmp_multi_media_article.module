@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the CMP Multi Media Article Content Type feature.
+ */
+
+include_once 'cmp_multi_media_article.features.inc';
