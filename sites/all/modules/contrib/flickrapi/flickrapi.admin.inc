@@ -130,18 +130,6 @@ function flickrapi_admin_settings() {
 }
 
 /**
- * Implements hook_form_alter().
- *
- * If the API key has not been validated yet,
- * change the button text on the admin form.
- */
-function flickrapi_form_flickrapi_admin_settings_alter(&$form, &$form_state) {
-  if (!_flickrapi_is_authenticated()) {
-    $form['actions']['submit']['#value'] = t('Authorize using OAuth');
-  }
-}
-
-/**
  * Validator for the admin settings form.
  */
 function flickrapi_admin_settings_validate($form, &$form_state) {
@@ -231,29 +219,6 @@ function flickrapi_oauth_authenticate() {
     // back to the Drupal site after accepting.
     drupal_goto($auth_url);
   }
-}
-
-/**
- * Verification callback to check the token we received from Flickr
- *
- * Handles the last step in the authentication proces:
- *   - Exchanging the Request Token for an Access Token
- * See http://www.flickr.com/services/api/auth.oauth.html
- */
-function flickrapi_oauth_token_verify() {
-  module_load_include('module', 'oauth_common');
-  $consumer = DrupalOAuthConsumer::load(variable_get('flickrapi_api_key', ''), FALSE);
-  $request_token = DrupalOAuthToken::loadByKey($_GET['oauth_token'], $consumer, OAUTH_COMMON_TOKEN_TYPE_REQUEST);
-
-  $client = new DrupalOAuthClient($consumer, $request_token);
-  $access_token = $client->getAccessToken('https://www.flickr.com/services/oauth/access_token', array(
-    'verifier' => $_GET['oauth_verifier'])
-  );
-
-  $request_token->delete();
-
-  drupal_set_message(t('Succesfully verified'));
-  drupal_goto('admin/config/media/flickrapi');
 }
 
 /**
