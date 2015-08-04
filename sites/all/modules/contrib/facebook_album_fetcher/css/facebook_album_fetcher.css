@@ -1,0 +1,8 @@
+.faf_imagebox {
+  background-color: #f1f1f1;
+  border: 1px solid #000000;
+  padding: 10px;
+}
+.faf_error_class {
+  color: #ff0000;
+}

@@ -1,0 +1,15 @@
+name = Facebook Album Fetcher
+description = Facebook Module for fetching the Album and photos of User and their facebook friends
+package = Facebook
+core = 7.x
+configure = admin/config/content/facebook_album_fetcher/configuration
+php = 5.3
+stylesheets[all][] = css/facebook_album_fetcher.css
+scripts[] = js/easyXDM.min.js
+
+; Information added by drupal.org packaging script on 2013-08-02
+version = "7.x-1.4"
+core = "7.x"
+project = "facebook_album_fetcher"
+datestamp = "1375445767"
+

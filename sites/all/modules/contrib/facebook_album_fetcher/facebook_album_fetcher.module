@@ -1,0 +1,540 @@
+<?php
+
+/**
+ * @file
+ * Facebook Album Fetcher Module
+ */
+
+module_load_include('inc', 'facebook_album_fetcher', 'includes/faf.facebook');
+/**
+ * Implements hook_help().
+ */
+function facebook_album_fetcher_help($path, $arg) {
+  $output = '';
+  switch ($path) {
+    case 'admin/help#facebook_album_fetcher':
+      $output .= '<h3>' . t('About the Facebook Album Fetcher Module') . '</h3>';
+      $output .= '<p>' . t('This plugin allows you to fetch your facebook albums and photo galleries from your Facebook Account.To get started, you must first connect with your Facebook account. Once connected, you can create a gallery by making a new Drupal Post or Page and pasting in one line of special HTML, like this:') . '</p>';
+      $output .= '<strong>' . t('[facebookAlbumFetcher album_id=ALBUM_ID]') . '</strong>';
+      $output .= '<p>' . t('Whenever you save a post or page containing these tokens, this plugin will automatically download the album information and insert its contents between them. You are free to include any normal content you like before or after, as usual.The example number above (2032831634182) is an ID that tells the module which Facebook album you had like to import. To find a list of available albums, you can use the "Facebook Album List" tab.') . '</p>';
+      $output .= '<h3>' . t('Installation Steps:') . '</h3>';
+      $output .= '<ul>';
+      $output .= '<li>' . t('<b>Step 1 : </b>Download and unpack the facebook_album_fetcher module in "sites/all/modules".') . '</li>';
+      $output .= '<li>' . t('<b>Step 2 : </b>Go to "Administer" -> "Modules" and enable the module.') . '</li>';
+      $output .= '<li>' . t('<b>Step 3 : </b>Connect your facebook account to with Facebook Album Fetcher. <a href="@faf_link">Click Here</a>', array('@faf_link' => url('admin/config/content/facebook_album_fetcher/configuration'))) . '</li>';
+      $output .= '<li>' . t('<b>Step 4 : </b>After getting the proper Access Token Save it.') . '</li>';
+      $output .= '<li>' . t('<b>Step 5 : </b>Now check other tabs that it is working proper.') . '</li>';
+      $output .= '<li>' . t('<b>Step 6 : </b>Enable the "Facebook Album Fetcher" Filter:') . '</li>';
+      $output .= '<ul>';
+      $output .= '<li>' . t('<b>Step 6.1 : </b>Open the "Text Formats" from "admin/config"') . '</li>';
+      $output .= '<li>' . t('<b>Step 6.2 : </b>Click on the "Configure" Operation of Full HTML') . '</li>';
+      $output .= '<li>' . t('<b>Step 6.3 : </b>Select the "Facebook Album Fetcher" option of Enabled filters Section.') . '</li>';
+      $output .= '<li>' . t('<b>Step 6.4 : </b>Position "Facebook Album Fetcher" on the Top by setting the order inside the "Filter processing order".') . '</li>';
+      $output .= '<li>' . t('<b>Step 6.5 : </b>Now Save the Configurtaion.') . '</li>';
+      $output .= '</ul>';
+      $output .= '<li>' . t('<b>Step 7 : </b>To fetch the album from your account Click Here.') . '</li>';
+      $output .= '<li>' . t('<b>Step 8 : </b>Now Copy the "FACEBOOK ALBUM FETCHER CODE" in your post or page.') . '</li>';
+      $output .= '<li>' . t('<b>Step 9 : </b>Before saving Select the Text Format Full HTML.') . '</li>';
+      $output .= '<li>' . t('<b>Step 10 : </b>Save your page.') . '</li>';
+      $output .= '</ul>';
+      $output .= '<h3>' . t('Facebook Album Fetcher Administration') . '</h3>';
+      $output .= '<dl>';
+      $output .= '<dd>' . t('<b>Facebook Login :</b> Provide you an interface to connect your facebook account and register with Facebook Album Fetcher App. <a href="@faf_link">Click Here</a>', array('@faf_link' => url('admin/config/content/facebook_album_fetcher/configuration'))) . '</dd>';
+      $output .= '<dd>' . t('<b>Facebook Album List :</b> It will import all of your facebook album. <a href="@faf_link">Click Here</a>', array('@faf_link' => url('admin/config/content/facebook_album_fetcher'))) . '</dd>';
+      $output .= '<dd>' . t('<b>Personal Details :</b> Your facebook personal details will be shown here. <a href="@faf_link">Click Here</a>', array('@faf_link' => url('admin/config/content/facebook_album_fetcher/user_details'))) . '</dd>';
+      $output .= '<dd>' . t('<b>Facebook Friends :</b> It imports all of your facebook friends list and you can access there public albums and can integrate with your drupal content. <a href="@faf_link">Click Here</a>', array('@faf_link' => url('admin/config/content/facebook_album_fetcher/friend_list'))) . '</dd>';
+      $output .= '<dd>' . t('<b>Setting :</b> This form provides you the various setting of the facebook album fetcher. <a href="@faf_link">Click Here</a>', array('@faf_link' => url('admin/config/content/facebook_album_fetcher/settings'))) . '</dd>';
+      $output .= '</dl>';
+      $output .= '<h3>' . t('Lightbox Image Popup Integration:') . '</h3>';
+      $output .= t('<p>Install the Lightbox Module to open the image into lightbox. To enable the lightbox module for Facebook Photo Fetcher. Go on the Settings tab and enable the lightbox "Embed Lightbox For Opening Image" option. <a href="@faf_link">Click Here</a></p>', array('@faf_link' => url('admin/config/content/facebook_album_fetcher/settings')));
+      break;
+  }
+  return $output;
+}
+/**
+ * Implements hook_menu().
+ */
+function facebook_album_fetcher_menu() {
+  $items = array();
+  $items['admin/config/content/facebook_album_fetcher/configuration'] = array(
+    'title' => 'Facebook Login',
+    'weight' => 0,
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('facebook_album_fetcher_configuration_form'),
+    'access arguments' => array('access administration pages'),
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'description' => 'Configuration and Settings For Facebook Album Fetcher',
+  );
+  $items['admin/config/content/facebook_album_fetcher'] = array(
+    'title' => 'Facebook Album Fetcher Configuration',
+    'weight' => 2,
+    'description' => 'Configuration and Settings For Facebook Album Fetcher',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('facebook_album_fetcher_configuration_form'),
+    'access arguments' => array('access administration pages'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+  $items['admin/config/content/facebook_album_fetcher/create_page'] = array(
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('facebook_album_fetcher_create_seprate_page'),
+    'access arguments' => array('access administration pages'),
+    'type' => MENU_CALLBACK,
+  );
+  $items['admin/config/content/facebook_album_fetcher/album_list'] = array(
+    'title' => 'Facebook Album List',
+    'weight' => 1,
+    'description' => 'Album Listing Form',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('facebook_album_fetcher_form'),
+    'access arguments' => array('access administration pages'),
+    'type' => MENU_LOCAL_TASK,
+    'description' => 'Configuration and Settings For Facebook Album Fetcher',
+  );
+  $items['admin/config/content/facebook_album_fetcher/user_details'] = array(
+    'title' => 'Personal Details',
+    'weight' => 3,
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('facebook_album_fetcher_account_details'),
+    'access arguments' => array('access administration pages'),
+    'type' => MENU_LOCAL_TASK,
+    'description' => 'Configuration and Settings For Facebook Album Fetcher',
+  );
+  $items['admin/config/content/facebook_album_fetcher/friend_list'] = array(
+    'title' => 'Facebook Friends',
+    'weight' => 4,
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('facebook_album_fetcher_friends_details'),
+    'access arguments' => array('access administration pages'),
+    'type' => MENU_LOCAL_TASK,
+    'description' => 'Configuration and Settings For Facebook Album Fetcher',
+  );
+  $items['admin/config/content/facebook_album_fetcher/settings'] = array(
+    'title' => 'Settings',
+    'weight' => 5,
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('facebook_album_fetcher_settings'),
+    'access arguments' => array('access administration pages'),
+    'type' => MENU_LOCAL_TASK,
+    'description' => 'Configuration and Settings For Facebook Album Fetcher',
+  );
+  return $items;
+}
+/**
+ * Setting Form of Facebook Album Fetcher.
+ */
+function facebook_album_fetcher_settings($form, &$form_state) {
+  $error_msg = facebook_album_fetcher_get_error_msg();
+  $lightbox_msg = "Image Link will be open on Lightbox when you enable this option. For this the lightbox2 module must be installed.";
+  $lightbox_enabled = facebook_album_fetcher_get_module_status('lightbox2');
+  if (!$lightbox_enabled) {
+    $lightbox_msg = "<span style='color:#ff0000'>Lightbox Module has not Installed : </span>Install and enable the Lightbox Module to open the Image into Lightbox";
+  }
+  if ($error_msg == "") {
+    $form['image_columns'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Number of Columns'),
+      '#default_value' => variable_get('faf_image_columns'),
+      '#description' => "Set the Number of Columns to show for Images",
+      '#element_validate' => array('element_validate_number'),
+    );
+    $form['image_class'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Add External Class on Image'),
+      '#default_value' => variable_get('faf_image_class'),
+      '#description' => "Add user defined class on image. You will add only the class name here. Example: imagebox, imageborder etc",
+    );
+    $form['image_lightbox'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Embed Lightbox For Opening Image'),
+      '#default_value' => variable_get('faf_image_lightbox'),
+      '#disabled' => !($lightbox_enabled),
+      '#description' => t($lightbox_msg),
+    );
+    $form['submit'] = array(
+      '#type' => 'submit',
+      '#value' => t('Save Setting'),
+    );
+  }
+  else {
+    $form['show_data'] = array(
+      '#markup' => $error_msg,
+    );
+  }
+  return $form;
+}
+/**
+ * Save the Settings Form.
+ */
+function facebook_album_fetcher_settings_submit($form, &$form_state) {
+  variable_set("faf_image_columns", $form_state['values']['image_columns']);
+  variable_set("faf_image_class", $form_state['values']['image_class']);
+  variable_set("faf_image_lightbox", $form_state['values']['image_lightbox']);
+  drupal_set_message(t('Your settings have been saved.'));
+}
+/**
+ * Fetch the Friends Details.
+ */
+function facebook_album_fetcher_friends_details($form, &$form_state) {
+  global $base_url;
+  $error_msg = facebook_album_fetcher_get_error_msg();
+  if ($error_msg == "") {
+    $friend_list = facebook_album_fetcher_get_friend_list();
+    if (is_array($friend_list)) {
+      $sr_no = 1;
+      foreach ($friend_list as $key) {
+        $album_url = $base_url . "/admin/config/content/facebook_album_fetcher/album_list/" . $key->id;
+        $table_row['profile_pics'] = '<img src="https://graph.facebook.com/' . $key->id . '/picture">';
+        $table_row['name'] = $key->name;
+        $table_row['user_id'] = $key->id;
+        $table_row['email_id'] = "<a href='" . $album_url . "'>View Album</a>";
+        $table_data[$key->name] = $table_row;
+      }
+      ksort($table_data);
+      $header = array("Profile Pics", "Name", "User ID", "Album Link");
+      $output = theme_table(
+        array(
+          "header" => $header,
+          "rows" => $table_data,
+          "attributes" => array("width" => "400px"),
+          "sticky" => FALSE,
+          "caption" => "",
+          "colgroups" => array(),
+          "empty" => t("No records available!"),
+        )
+      );
+      $form['show_data'] = array(
+        '#markup' => $output,
+      );
+    }
+    else {
+      $form['show_data'] = array(
+        '#markup' => "<span class='faf_error_class'>" . facebook_album_fetcher_show_error($friend_list) . "</span>",
+      );
+    }
+  }
+  else {
+    $form['show_data'] = array(
+      '#markup' => $error_msg,
+    );
+  }
+  return $form;
+}
+/**
+ * Fetch the User Accoutn Details.
+ */
+function facebook_album_fetcher_account_details($form) {
+  $expiry_time = facebook_album_fetcher_get_expiry();
+  $time_string = $expiry_time['time'] . $expiry_time['suffix'] . " Remaining";
+  $error_msg = facebook_album_fetcher_get_error_msg();
+  if ($error_msg == "") {
+    $user_info = facebook_album_fetcher_get_user_info();
+    if (is_object($user_info)) {
+      $header = array("Headings", "Value");
+      $values = array(
+        array("<b>ID</b>", $user_info->id),
+        array("<b>Profile Picture</b>",'<a href="' . $user_info->link . '" target="_blank"><img src="' . $user_info->picture->data->url . '"></a>'),
+        array("<b>Name</b>", $user_info->name),
+        array("<b>Facebook Profile</b>", $user_info->link),
+        array("<b>Gender</b>", $user_info->gender),
+        array("<b>Acccess Token</b>", FAF_ACCESS_TOKEN),
+        array("<b>Valid Till</b>", $time_string),
+      );
+      $output = theme_table(
+      array(
+        "header" => $header,
+        "rows" => $values,
+        "attributes" => array("width" => "400px"),
+        "sticky" => FALSE,
+        "caption" => "",
+        "colgroups" => array(),
+        "empty" => t("No records available!"),
+      )
+      );
+      $form['show_data'] = array(
+        '#markup' => $output,
+      );
+    }
+    else {
+      $form['show_data'] = array(
+        '#markup' => "<span class='faf_error_class'>" . facebook_album_fetcher_show_error($user_info) . "</span>",
+      );
+    }
+  }
+  else {
+    $form['show_data'] = array(
+      '#markup' => $error_msg,
+    );
+  }
+  return $form;
+}
+/**
+ * Getting the Help Test.
+ */
+function facebook_album_fetcher_content($type) {
+  switch ($type) {
+    case 'configuration':
+      $output = "";
+      $output .= '<h3>' . t('About the Facebook Album Fetcher Module') . '</h3>';
+      $output .= '<p>' . t('This plugin allows you to fetch your facebook albums and photo galleries from your Facebook Account.To get started, you must first connect with your Facebook account. Once connected, you can create a gallery by making a new Drupal Post or Page and pasting in one line of special HTML, like this:') . '</p>';
+      $output .= '<strong>' . t('[facebookAlbumFetcher album_id=ALBUM_ID]') . '</strong>';
+      $output .= '<p>' . t('Whenever you save a post or page containing these tokens, this plugin will automatically download the album information and insert its contents between them. You are free to include any normal content you like before or after, as usual.The example number above (2032831634182) is an ID that tells the module which Facebook album you had like to import. To find a list of available albums, you can use the "Facebook Album List" tab.') . '</p>';
+      return t($output);
+  }
+}
+/**
+ * Creating the Facebook Login Page to get the Session.
+ */
+function facebook_album_fetcher_configuration_form($form, &$form_state) {
+  if (arg(5) == "re_generate") {
+    variable_del('faf_access_token');
+    variable_del('faf_expiry_time');
+    variable_del('faf_start_time');
+  }
+  $path = drupal_get_path('module', 'facebook_album_fetcher');
+  $header_content = facebook_album_fetcher_content('configuration');
+  $access_variable = variable_get('faf_access_token');
+  $access_variable_expiry = variable_get('faf_expiry_time');
+  $expiry_time = facebook_album_fetcher_get_expiry();
+  $form['configuration_text'] = array('#markup' => $header_content);
+  if ($access_variable == "" && $access_variable_expiry == "") {
+    $form['login_msg'] = array('#markup' => '<div id="login_msg" style="display:none">Login to Facebook to Generate Access Token</div>');
+    drupal_add_js($path . '/js/facebook_album_fetcher_auth.js', array('scope' => 'footer'));
+    $form['login_tag'] = array('#markup' => '<div id="authorizeFrame" style="height:70px;overflow:hidden;"></div>');
+  }
+  elseif ($expiry_time['time'] < 59 && $expiry_time['suffix'] == "Minutes") {
+    $form['login_msg'] = array('#markup' => '<div id="login_msg" style="display:none">Renew Facebook Session</div>');
+    drupal_add_js($path . '/js/facebook_album_fetcher_auth.js', array('scope' => 'footer'));
+    $form['login_tag'] = array('#markup' => '<div id="authorizeFrame" style="height:70px;overflow:hidden;"></div>');
+  }
+  elseif ($expiry_time['time'] < 0) {
+    $form['login_msg'] = array('#markup' => '<div id="login_msg" style="display:none">Regenerate Facebook Session</div>');
+    drupal_add_js($path . '/js/facebook_album_fetcher_auth.js', array('scope' => 'footer'));
+    $form['login_tag'] = array('#markup' => '<div id="authorizeFrame" style="height:70px;overflow:hidden;"></div>');
+  }
+  $form['access_token'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Access Token'),
+    '#size' => 255,
+    '#id' => 'facebookAccessToken',
+    '#description' => t('Valid Facebook Access Token.'),
+    '#default_value' => variable_get('faf_access_token'),
+    '#attributes' => array('readonly' => 'readonly'),
+  );
+  if ($expiry_time['time'] > 0) {
+    $time_string = $expiry_time['time'] . $expiry_time['suffix'] . " Remaining";
+    $form['access_token_expiry_time'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Access Token Expiry Time'),
+      '#size' => 120,
+      '#default_value' => $time_string,
+      '#description' => 'Your access token will be expired in ' . $time_string,
+      '#attributes' => array('readonly' => 'readonly'),
+    );
+  }
+  $form['access_expiry'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Expiry Time Remaining'),
+    '#size' => 120,
+    '#prefix' => '<div style="display:none">',
+    '#suffix' => '</div>',
+    '#id' => 'facebookAccessTokenExpire',
+    '#default_value' => variable_get('faf_expiry_time'),
+    '#attributes' => array('readonly' => 'readonly'),
+  );
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save My Facebook Session'),
+  );
+  return $form;
+}
+/**
+ * Save the Configuration Form.
+ */
+function facebook_album_fetcher_configuration_form_submit($form, &$form_state) {
+  if (FAF_ACCESS_TOKEN != $form_state['values']['access_token']) {
+    $time = time();
+    $token = facebook_album_fetcher_extend_token($form_state['values']['access_token']);
+    variable_set('faf_access_token', $token['access_token']);
+    variable_set('faf_expiry_time', $token['access_expiry']);
+    variable_set('faf_start_time', $time);
+    drupal_set_message(t('Your session has been saved. Now you can access your profile.'));
+  }
+  else {
+    form_set_error('Error', t('Your current session and saved session are same.'));
+  }
+}
+/**
+ * Implements the hook_validate().
+ */
+function facebook_album_fetcher_configuration_form_validate($node, $form) {
+  if ($form['values']['access_token'] == "" && $form['values']['access_expiry'] == "") {
+    form_set_error('Error', t('Please login first to your facebook account. To get the valid session.'));
+  }
+}
+/**
+ * Album Listing Form Configuration.
+ */
+function facebook_album_fetcher_form($form, &$form_state) {
+  $error_msg = facebook_album_fetcher_get_error_msg();
+  if ($error_msg == "") {
+    $album_data = facebook_album_fetcher_get_album_html(arg(5));
+    if (!is_array($album_data)) {
+      $form['show_data'] = array(
+        '#markup' => "<span class='faf_error_class'>" . facebook_album_fetcher_show_error($album_data) . "</span>",
+      );
+      return $form;
+    }
+    $header = array(
+      "Sr. No.",
+      "Album Title",
+      "No.Of Pics.",
+      "Create On",
+      "Facebook Album Fetcher Code",
+      "Create Page",
+    );
+    $output = theme_table(
+      array(
+        "header" => $header,
+        "rows" => $album_data,
+        "attributes" => array("width" => "100%"),
+        "sticky" => FALSE,
+        "caption" => "",
+        "colgroups" => array(),
+        "empty" => t("No records available!"),
+      )
+    ) . theme("pager");
+    $form['show_data'] = array(
+      '#markup' => $output,
+    );
+  }
+  else {
+    $form['show_data'] = array(
+      '#markup' => $error_msg,
+    );
+  }
+  return $form;
+}
+/**
+ * Implements hook_filter_info().
+ */
+function facebook_album_fetcher_filter_info() {
+  $filters['fbalbumfetcher'] = array(
+    'title' => t('Facebook Album Fetcher'),
+    'description' => t('Converts [facebookAlbumFetcher album_id=ALBUM_ID] to inline images.'),
+    'process callback' => 'facebook_album_fetcher_callback',
+    'tips callback' => 'facebook_album_fetcher_tips',
+  );
+  return $filters;
+}
+/**
+ * Implements hook_tips().
+ */
+function facebook_album_fetcher_tips($filter, $format, $long = FALSE) {
+  return t('Use [facebookAlbumFetcher album_id=ALBUM_ID] to embed Facebook album/photo. With PATH is URL to view your album/photo, they must have public access.');
+}
+/**
+ * Implements hook_callback().
+ */
+function facebook_album_fetcher_callback($text, $filter) {
+  if (stripos($text, '[facebookAlbumFetcher') === FALSE) {
+    return;
+  }
+  $faf_token = facebook_album_fetcher_get_token($text);
+  $facebook_album_fetcher = facebook_album_fetcher_parse_token($faf_token);
+  $faf_image_html = facebook_album_fetcher_get_fb_photos_html($facebook_album_fetcher['album_id']);
+  $text = str_replace($faf_token, $faf_image_html, $text);
+  return $text;
+}
+/**
+ * Returns the Token from the string.
+ */
+function facebook_album_fetcher_get_token($text = "") {
+  $token_pos = stripos($text, '[facebookAlbumFetcher');
+  $token_length = stripos($text, ']', $token_pos + 1) - $token_pos + 1;
+  $token = substr($text, stripos($text, '[facebookAlbumFetcher'), $token_length);
+  return $token;
+}
+/**
+ * Parsing the faf token.
+ */
+function facebook_album_fetcher_parse_token($token="") {
+  $facebook_album_fetcher_token = $token;
+  $facebook_album_fetcher_token = str_replace("[", "", $facebook_album_fetcher_token);
+  $facebook_album_fetcher_token = str_replace("]", "", $facebook_album_fetcher_token);
+  $facebook_album_fetcher_array = explode(" ", $facebook_album_fetcher_token);
+  $facebook_album_fetcher = array();
+  for ($i = 1; $i < count($facebook_album_fetcher_array); $i++) {
+    $token = explode("=", $facebook_album_fetcher_array[$i]);
+    $facebook_album_fetcher[$token[0]] = $token[1];
+  }
+  return $facebook_album_fetcher;
+}
+/**
+ * Get the Album HTML Table.
+ */
+function facebook_album_fetcher_get_album_html($user_id = "") {
+  global $base_url;
+  $album_array = facebook_album_fetcher_get_facebook_album_json_data($user_id);
+  if (!is_array($album_array)) {
+    return $album_array;
+  }
+  $sr_no = 1;
+  foreach ($album_array as $key) {
+    if (!isset($key->link)) {
+      $key->link = "";
+    }
+    if (!isset($key->count)) {
+      $key->count = 0;
+    }
+    $create_link = $base_url . "/admin/config/content/facebook_album_fetcher/create_page/" . $key->id . "_" . $key->name;
+    $table_row['sr_no'] = $sr_no++;
+    $table_row['album_title'] = "<a href='" . $key->link . "' target='_blank'>" . $key->name . "</a>";
+    $table_row['no_of_pics'] = $key->count;
+    $table_row['created_on'] = $key->created_time;
+    $table_row['faf_code'] = "<b>[facebookAlbumFetcher album_id=" . $key->id . "]</b>";
+    $table_row['create_page'] = "<a href='" . $create_link . "'>Create Separate Page</a>";
+    $table_data[] = $table_row;
+  }
+  return $table_data;
+}
+/**
+ * Create the seprate page for the Album Page.
+ */
+function facebook_album_fetcher_create_seprate_page() {
+  global $user;
+  global $base_url;
+
+  $album = explode("_", arg(5));
+  $facebook_album_fetcher = "[facebookAlbumFetcher album_id=" . $album[0] . "]";
+  $album_node = new stdClass();
+
+  $album_node->type = 'page';
+  node_object_prepare($album_node);
+  $album_node->uid = $user->uid;
+  $album_node->name = $user->name;
+
+  $album_node->title = $album[1];
+  $album_node->language = 'und';
+  $album_node->body[$album_node->language][0]['value'] = $facebook_album_fetcher;
+  $album_node->body[$album_node->language][0]['format'] = 'full_html';
+
+  $album_node->path['alias'] = facebook_album_fetcher_create_url($album[1]);
+  $album_node->comment = 1;
+
+  $album_node->status = 1;
+  $album_node->promote = 0;
+  $album_node->revision = 0;
+
+  $album_node->changed = $_SERVER['REQUEST_TIME'];
+  $album_node->created = $_SERVER['REQUEST_TIME'];
+  node_submit($album_node);
+  node_save($album_node);
+  drupal_goto($base_url . "/" . $album_node->path['alias']);
+}
+/**
+ * Function for creating proper URL from the stirng.
+ */
+function facebook_album_fetcher_create_url($string = '', $is_filename = FALSE) {
+  $string = preg_replace('/[^\w\-' . ($is_filename ? '~_\.' : '') . ']+/u', '-', $string);
+  return mb_strtolower(preg_replace('/--+/u', '-', $string), 'UTF-8');
+}

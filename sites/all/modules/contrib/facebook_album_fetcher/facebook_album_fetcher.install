@@ -1,0 +1,28 @@
+<?php
+/**
+ * @file
+ * Install, update and uninstall functions for the Node Revision module.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function facebook_album_fetcher_install() {
+  // Ensure the blog node type is available.
+  node_types_rebuild();
+  $types = node_type_get_types();
+  variable_set('faf_app_url', 'http://www.faf.kaushalkishore.com/');
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function facebook_album_fetcher_uninstall() {
+  variable_del('faf_access_token');
+  variable_del('faf_app_url');
+  variable_del('faf_expiry_time');
+  variable_del('faf_image_class');
+  variable_del('faf_image_columns');
+  variable_del('faf_image_lightbox');
+  variable_del('faf_start_time');
+}
